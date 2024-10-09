@@ -40,16 +40,6 @@ class ConfigHelper:
         config_formatted = json.dumps(self._whole_config, indent=4)
         # Saves the JSON object back to file
 
-        
-        # Here we want to write the new config file but we have a problem: with the `os.fdopen` workaround, the config
-        # file is overwritten if the new config file, stored in `config_formatted`. has a number of lines >= of the old
-        # config file lines. If you want to save a config file with a number of lines < of the old config file lines,
-        # the workaround overwrites the lines that has index <= len(config_formatted) and keep the lines of the old
-        # config file that has index > len(config_formatted).
-        # You have to reset the file, so we do a `open` command to totally erase the config file.
-
-        open(self.config_path, "w")
-
         with os.fdopen(
             os.open(self.config_path, flags=os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode=0o600),
             mode='w',
