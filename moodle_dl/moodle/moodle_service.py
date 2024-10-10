@@ -1,7 +1,7 @@
 import base64
 import logging
 import re
-from typing import List, Tuple
+from typing import List, Set, Tuple
 from urllib.parse import urlparse
 
 from moodle_dl.config import ConfigHelper
@@ -269,6 +269,22 @@ class MoodleService:
         inWhitelist = course_id in download_course_ids or len(download_course_ids) == 0
 
         return inWhitelist and not inBlacklist
+    
+    @staticmethod
+    def should_tick_course(
+        courses: Set[int], course_id: int, download_course_ids: List[int], dont_download_course_ids: List[int], use_whitelist: bool
+    ) -> bool:
+        if use_whitelist:
+            return (
+                course_id in download_course_ids or (
+                    course_id not in dont_download_course_ids and len(dont_download_course_ids) > 0
+                )
+            )
+        
+        if len(download_course_ids) == 0:
+            return course_id in dont_download_course_ids or len(dont_download_course_ids) == 0
+        
+        return course_id in courses.difference((set(download_course_ids)))
 
     @staticmethod
     def should_download_section(section_id: int, dont_download_sections_ids: List[int]) -> bool:

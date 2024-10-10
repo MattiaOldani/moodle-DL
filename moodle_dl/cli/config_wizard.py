@@ -170,17 +170,15 @@ class ConfigWizard:
             no_text='Blacklist',
         )
 
+        ids = [course.id for course in courses]
         choices = []
         defaults = []
         for i, course in enumerate(courses):
             choices.append(f'{int(course.id):5}\t{course.fullname}')
 
-            should_download = MoodleService.should_download_course(
-                course.id, download_course_ids, dont_download_course_ids
-            )
-            if should_download and use_whitelist:
-                defaults.append(i)
-            elif not should_download and not use_whitelist:
+            if MoodleService.should_tick_course(
+                ids, course.id, download_course_ids, dont_download_course_ids, use_whitelist
+            ):
                 defaults.append(i)
 
         if use_whitelist:
@@ -199,7 +197,7 @@ class ConfigWizard:
         if use_whitelist:
             self.config.set_property('download_course_ids', course_ids)
             self.config.remove_property('dont_download_course_ids')
-        elif not use_whitelist:
+        else:
             self.config.set_property('dont_download_course_ids', course_ids)
             self.config.remove_property('download_course_ids')
 
